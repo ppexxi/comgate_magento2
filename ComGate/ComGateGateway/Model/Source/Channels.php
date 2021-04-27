@@ -1,7 +1,9 @@
 <?php
-
 namespace ComGate\ComGateGateway\Model\Source;
 
+/**
+ * Payment channels data-source model for ComGate payment gateway
+ */
 class Channels implements \Magento\Framework\Option\ArrayInterface {
 
   /**
@@ -19,10 +21,10 @@ class Channels implements \Magento\Framework\Option\ArrayInterface {
     if (!isset($this->options)) {
       $service = $this->config->getComGateService();
 
-      try { 
+      try {
         $payment_method_list = $service->getPaymentMethods();
       }
-      catch (\Exception $e) {
+      catch(\Exception $e) {
         //throw $e;
         return [];
       }
@@ -37,7 +39,6 @@ class Channels implements \Magento\Framework\Option\ArrayInterface {
         $option = array();
         $option['value'] = $payment_method->id;
         $option['label'] = $payment_method->name; //$payment_method->description; $payment_method->logo;
-
         $this->options[] = $option;
       }
     }
@@ -46,13 +47,14 @@ class Channels implements \Magento\Framework\Option\ArrayInterface {
   }
 
   public function toArray() {
-    $options = $this->toOptionArray(); 
+    $options = $this->toOptionArray();
 
     $array = array();
-    foreach($options as $option) {
-        $array[$option['value']] = $option['label'];
+    foreach ($options as $option) {
+      $array[$option['value']] = $option['label'];
     }
 
     return $array;
   }
 }
+

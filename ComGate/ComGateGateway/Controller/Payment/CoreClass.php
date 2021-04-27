@@ -4,6 +4,9 @@ namespace ComGate\ComGateGateway\Controller\Payment;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\Exception\PaymentException;
 
+/**
+ * Abstract class for ComGate payment-controllers with commonly used methods
+ */
 abstract class CoreClass extends Action {
 
   protected $config;
@@ -54,3 +57,4 @@ abstract class CoreClass extends Action {
     return $this->resultFactory->create(\Magento\Framework\Controller\ResultFactory::TYPE_RAW);
   }
 }
+

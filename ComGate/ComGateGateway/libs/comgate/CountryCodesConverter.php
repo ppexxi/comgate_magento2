@@ -1,5 +1,4 @@
 <?php
-
 function convert_country_code_from_isoa2_to_isoa3($iso_s2) {
   $country_codes_map = array(
     "AF" => "AFG", // 004 Afghanistan

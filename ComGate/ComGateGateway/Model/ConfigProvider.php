@@ -1,9 +1,11 @@
 <?php
-
 namespace ComGate\ComGateGateway\Model;
 
 use Magento\Checkout\Model\ConfigProviderInterface;
 
+/**
+ * Configuration provider model for ComGate payment gateway (data sent to frontend)
+ */
 class ConfigProvider implements ConfigProviderInterface {
   /**
    * @var Config
@@ -19,20 +21,16 @@ class ConfigProvider implements ConfigProviderInterface {
    */
   public function getConfig() {
     $outConfig = ['payment' => [\ComGate\ComGateGateway\Model\Payment::METHOD_CODE => [
-      //'gateway_url' => $this->config->getGatewayUrl(),
-      'result_url' => $this->config->getResultUrl(),
-      'form_url' => $this->config->getFormUrl(),
-      //'ipn_url' => $this->config->getIpnUrl(),
-      'enabled' => $this->config->isEnabled(),
-      'title' => $this->config->getTitle(),
-      'production' => $this->config->isProduction(),
-      //'comid' => $this->config->getComid(),
-      //'secret' => $this->config->getSecret(),
-      //'preselected' => $this->config->getPreselected(),
-      'channels' => $this->config->getChannels(),
-      'debug' => $this->config->isDebug()
-    ]]];
+    //'gateway_url' => $this->config->getGatewayUrl(),
+    'result_url' => $this->config->getResultUrl() , 'form_url' => $this->config->getFormUrl() ,
+    //'ipn_url' => $this->config->getIpnUrl(),
+    'enabled' => $this->config->isEnabled() , 'title' => $this->config->getTitle() , 'production' => $this->config->isProduction() ,
+    //'comid' => $this->config->getComid(),
+    //'secret' => $this->config->getSecret(),
+    //'preselected' => $this->config->getPreselected(),
+    'channels' => $this->config->getChannels() , 'debug' => $this->config->isDebug() ]]];
 
     return $outConfig;
   }
 }
+

@@ -5,7 +5,7 @@ use Magento\Framework\App\Action\Action;
 use Magento\Framework\Exception\PaymentException;
 
 /**
- * This controller handles the server to server notification
+ * This controller handles the server to server notification (IPN)
  *
  */
 class Ipn extends Result implements \Magento\Framework\App\Action\HttpPostActionInterface, \Magento\Framework\App\CsrfAwareActionInterface {
@@ -23,7 +23,7 @@ class Ipn extends Result implements \Magento\Framework\App\Action\HttpPostAction
     return null;
   }
 
-  public function validateForCsrf(\Magento\Framework\App\RequestInterface $request): ?bool {
+  public function validateForCsrf(\Magento\Framework\App\RequestInterface $request): ? bool {
     return true;
   }
 
@@ -35,7 +35,7 @@ class Ipn extends Result implements \Magento\Framework\App\Action\HttpPostAction
   public function execute() {
 
     $id = trim((string)$this->getRequest()->getParam('transId', NULL));
-    $refId = trim((string)$this->getRequest()->getParam('refId', NULL));
+    $refId = (int)trim((string)$this->getRequest()->getParam('refId', NULL));
 
     if (!$id || !$refId) {
       http_response_code(400);
@@ -46,7 +46,7 @@ class Ipn extends Result implements \Magento\Framework\App\Action\HttpPostAction
     try {
       $status = $service->getStatus($id);
     }
-    catch (\Exception $e) {
+    catch(\Exception $e) {
       $status = false;
     }
 
@@ -55,7 +55,7 @@ class Ipn extends Result implements \Magento\Framework\App\Action\HttpPostAction
       die('Malformed response');
     }
 
-    $order_id = $status['refId'];
+    $order_id = (int)@$status['refId'];
     $order = $this->getOrder($order_id);
     if (!$order->getId()) {
       http_response_code(400);
@@ -64,12 +64,9 @@ class Ipn extends Result implements \Magento\Framework\App\Action\HttpPostAction
       die('No Order');
     }
 
-    //var_dump($order_id); die();
-    //var_dump($order->getStatus()); die();
-
     $response = $this->createResponse();
 
-    if (!in_array($order->getStatus(), array(
+    if (!in_array($order->getStatus() , array(
       \Magento\Sales\Model\Order::STATE_NEW,
       \Magento\Sales\Model\Order::STATE_HOLDED,
       \Magento\Sales\Model\Order::STATE_PENDING_PAYMENT,
@@ -77,12 +74,11 @@ class Ipn extends Result implements \Magento\Framework\App\Action\HttpPostAction
     ))) {
 
       //trigger_error('ComGate (notification): No change [' . $order_id . ']');
-
       $response->setHttpResponseCode(200);
       return $response;
     }
 
-    if ($status['code']) {
+    if (!empty($status['code'])) {
       http_response_code(400);
       die('Payment error');
     }
@@ -90,7 +86,7 @@ class Ipn extends Result implements \Magento\Framework\App\Action\HttpPostAction
     if (($status['status'] == 'CANCELLED') && ($order->getStatus() != \Magento\Sales\Model\Order::STATE_HOLDED)) {
       $order->setState(\Magento\Sales\Model\Order::STATE_HOLDED);
       $order->setStatus(\Magento\Sales\Model\Order::STATE_HOLDED);
-        
+
       //trigger_error('ComGate (notification): Payment failed [' . $order_id . ']');
       $order->addStatusHistoryComment('ComGate (notification): Payment failed');
       $order->save();
@@ -98,7 +94,7 @@ class Ipn extends Result implements \Magento\Framework\App\Action\HttpPostAction
     else if (($status['status'] == 'PAID') && ($order->getStatus() != \Magento\Sales\Model\Order::STATE_PROCESSING)) {
       $order->setState(\Magento\Sales\Model\Order::STATE_PROCESSING);
       $order->setStatus(\Magento\Sales\Model\Order::STATE_PROCESSING);
-        
+
       //trigger_error('ComGate (notification): Payment success [' . $order_id . ']');
       $order->addStatusHistoryComment('ComGate (notification): Payment success');
       $order->save();
@@ -114,7 +110,7 @@ class Ipn extends Result implements \Magento\Framework\App\Action\HttpPostAction
     else {
       /*$order->addStatusHistoryComment('ComGate (notification): Unknown state [error]');
       $order->save();
-
+       
       http_response_code(400);
       die('Invalid transaction state');*/
     }
@@ -123,3 +119,4 @@ class Ipn extends Result implements \Magento\Framework\App\Action\HttpPostAction
     return $response;
   }
 }
+

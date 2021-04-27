@@ -1,3 +1,4 @@
+/* ComGate Payment frontend method renderer */
 define(
     [
         'jquery',
@@ -33,6 +34,9 @@ define(
 
             redirectAfterPlaceOrder: false,
 
+            /**
+             * After placing order, we need to create gateway redirection URL 
+            */
             placeOrder: function(data, event) {
                 var self = this;
 
@@ -76,16 +80,9 @@ define(
                 $.get(tfConfig.form_url, {
                     'order_id': data
                 }).success(function(response) {
-                  if (response) {
-                    window.location.href = response;
-                  }
-
-                  /*var div = document.createElement("div");
-                  div.innerHTML = response;
-                  document.body.appendChild(div);
-
-                  var form = document.getElementById('comgateForm');
-                  form.submit();*/
+                    if (response) {
+                        window.location.href = response;
+                    }
                 });
             }
         });

@@ -7,6 +7,9 @@ use Magento\Framework\Exception\PaymentException;
 //require_once __DIR__ . "/../../libs/comgate/CountryCodesConverter.php";
 require_once __DIR__ . "/../../libs/comgate/AgmoPaymentsSimpleProtocol.php";
 
+/**
+ * This controller handles payment-transaction creation & redirection URL
+ */
 class Form extends CoreClass {
 
   /**
@@ -27,15 +30,17 @@ class Form extends CoreClass {
   public function execute() {
 
     // TODO[security]: Extract from session
-    $order_id = (int)$this->getRequest()->getParam('order_id', NULL);
+    $order_id = (int)trim((string)$this->getRequest()->getParam('order_id', NULL));
     if (!$order_id) {
+      http_response_code(400);
       die('No order ID');
     }
 
     $order = $this->getOrder($order_id);
     if (!$order->getId()) {
+      http_response_code(400);
       die('No order');
-    }      
+    }
 
     if ($order->getState() != \Magento\Sales\Model\Order::STATE_PENDING_PAYMENT) {
       $order->setState(\Magento\Sales\Model\Order::STATE_PENDING_PAYMENT);
@@ -54,13 +59,13 @@ class Form extends CoreClass {
     $productName = 'Ord. ' . $order->getId();
 
     $locale = $this->getLocale();
-    $locale_string = explode('_', $locale->getLocale(), 2);
-    
+    $locale_string = explode('_', $locale->getLocale() , 2);
+
     $payment_methods = $this->config->getChannels();
     $payment_methods_string = implode('+', $payment_methods);
 
     $service = $this->config->getComGateService();
-    $result = $service->createTransaction(/*$this->fixCountryCode(*/$address ? $address->getCountryId() : 'SK'/*)*/, round($order->getGrandTotal() * 100), $currency ? $currency : 'EUR', $productName, $order->getId(), $clientId, '', '', $payment_methods_string, '', $address ? $address->getEmail() : 'nomail@example.com', $address ? $address->getTelephone() : '', $productName, strtoupper($locale_string[0]), false, false, false, false, false);
+    $result = $service->createTransaction(/*$this->fixCountryCode(*/$address ? $address->getCountryId() : 'SK' /*)*/, round($order->getGrandTotal() * 100) , $currency ? $currency : 'EUR', $productName, $order->getId() , $clientId, '', '', $payment_methods_string, '', $address ? $address->getEmail() : 'nomail@example.com', $address ? $address->getTelephone() : '', $productName, strtoupper($locale_string[0]) , false, false, false, false, false);
 
     $response = $this->createResponse();
     $response->setContents($result->redirectUrl);

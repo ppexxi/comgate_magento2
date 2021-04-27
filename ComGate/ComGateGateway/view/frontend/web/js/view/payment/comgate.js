@@ -1,3 +1,4 @@
+/* ComGate Payment frontend component */
 define(
     [
         'uiComponent',

@@ -3,6 +3,9 @@ namespace ComGate\ComGateGateway\Model;
 
 require_once __DIR__ . "/../libs/comgate/AgmoPaymentsSimpleProtocol.php";
 
+/**
+ * Configuration model for ComGate payment gateway
+ */
 class Config {
   /**
    * @var \Magento\Framework\App\Config\ScopeConfigInterface
@@ -13,15 +16,15 @@ class Config {
 
   const GATEWAY_URL = 'https://payments.comgate.cz/v1.0';
 
+  public function __construct(\Magento\Framework\App\Config\ScopeConfigInterface $configInterface) {
+    $this->scopeConfigInterface = $configInterface;
+  }
+
   /**
    * Function used for reading a config value.
    */
   private function getConfigValue($value) {
     return $this->scopeConfigInterface->getValue('payment/comgate/' . $value);
-  }
-
-  public function __construct(\Magento\Framework\App\Config\ScopeConfigInterface $configInterface) {
-    $this->scopeConfigInterface = $configInterface;
   }
 
   public function isEnabled() {
@@ -51,7 +54,9 @@ class Config {
       return explode(',', $first);
     }
     else {
-      return array('ALL');
+      return array(
+        'ALL'
+      );
     }
   }
 
@@ -93,9 +98,10 @@ class Config {
 
   public function getComGateService() {
     if (!$this->service) {
-      $this->service = new \AgmoPaymentsSimpleProtocol(self::GATEWAY_URL, $this->getComid() , !$this->isProduction(), $this->getSecret());
+      $this->service = new \AgmoPaymentsSimpleProtocol(self::GATEWAY_URL, $this->getComid() , !$this->isProduction() , $this->getSecret());
     }
 
     return $this->service;
   }
 }
+

@@ -1,6 +1,9 @@
 <?php
 namespace ComGate\ComGateGateway\Model;
 
+/**
+ * Payment model for ComGate payment gateway (core of payment-method processing)
+ */
 class Payment extends \Magento\Payment\Model\Method\AbstractMethod {
   const METHOD_CODE = 'comgate';
 
@@ -24,19 +27,14 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod {
 
   public function __construct(\Magento\Framework\Model\Context $context, \Magento\Framework\Registry $registry, \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory, \Magento\Framework\Api\AttributeValueFactory $customAttributeFactory, \Magento\Payment\Helper\Data $paymentData, \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig, \Magento\Payment\Model\Method\Logger $logger, \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null, \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null, array $data = [], $directory = null) {
 
-    /*foreach(func_get_args() as $arg) {
-          if ($arg)
-            var_dump(get_class($arg));
-        }*/
-
     parent::__construct($context, $registry, $extensionFactory, $customAttributeFactory, $paymentData, $scopeConfig, $logger, $resource, $resourceCollection, $data, $directory);
   }
 
   public function initialize($paymentAction, $stateObject) {
-    $payment = $this->getInfoInstance();
+    //$payment = $this->getInfoInstance();
     //$stateObject->setState(\Magento\Sales\Model\Order::STATE_PENDING_PAYMENT);
     //$stateObject->setStatus(\Magento\Sales\Model\Order::STATE_PENDING_PAYMENT);
-    $stateObject->setIsNotified(false);    
+    $stateObject->setIsNotified(false);
   }
 
   public function canUseForCurrency($currencyCode) {
@@ -76,3 +74,4 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod {
     return true;
   }
 }
+
