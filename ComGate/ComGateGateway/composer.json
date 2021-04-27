@@ -1,0 +1,19 @@
+{
+  "name": "comgate/comgate_magento2",
+  "description": "ComGate Payment Gateway",
+  "require": {
+    "php": "~7.0.0"
+  },
+  "type": "magento2-module",
+  "version": "1.0.0",
+  "license": [
+  ],
+   "autoload": {
+    "files": [
+      "registration.php"
+    ],
+    "psr-4": {
+      "ComGate\\ComGateGateway\\": ""
+    }
+  }
+}

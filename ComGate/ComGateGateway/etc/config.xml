@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <payment>
+            <comgate>
+                <active>1</active>
+                <model>ComGate\ComGateGateway\Model\Payment</model>
+                <is_gateway>1</is_gateway>
+                <can_use_checkout>1</can_use_checkout>
+                <can_capture>1</can_capture>
+                <order_status>pending_payment</order_status>
+                <can_authorize>1</can_authorize>
+                <payment_action>authorize_capture</payment_action>
+                <title>ComGate Payment Gateway</title>
+                <key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
+            </comgate>
+        </payment>
+    </default>
+</config>
