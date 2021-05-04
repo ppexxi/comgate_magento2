@@ -1,8 +1,6 @@
 <?php
 namespace ComGate\ComGateGateway\Model;
 
-require_once __DIR__ . "/../libs/comgate/AgmoPaymentsSimpleProtocol.php";
-
 /**
  * Configuration model for ComGate payment gateway
  */
@@ -11,13 +9,15 @@ class Config {
    * @var \Magento\Framework\App\Config\ScopeConfigInterface
    */
   private $scopeConfigInterface;
+  private $storeManager;
 
   private $service = null;
 
   const GATEWAY_URL = 'https://payments.comgate.cz/v1.0';
 
-  public function __construct(\Magento\Framework\App\Config\ScopeConfigInterface $configInterface) {
+  public function __construct(\Magento\Framework\App\Config\ScopeConfigInterface $configInterface, \Magento\Store\Model\StoreManagerInterface $storeManager) {
     $this->scopeConfigInterface = $configInterface;
+    $this->storeManager = $storeManager;
   }
 
   /**
@@ -68,15 +68,13 @@ class Config {
     return (bool)$this->getConfigValue('debug');
   }
 
-  protected function getObjectManager() {
+  /*protected function getObjectManager() {
     $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
     return $objectManager;
-  }
+  }*/
 
   protected function getStore() {
-    $objectManager = $this->getObjectManager();
-    $storeManager = $objectManager->get('\Magento\Store\Model\StoreManagerInterface');
-    $store = $storeManager->getStore();
+    $store = $this->storeManager->getStore();
     return $store;
   }
 
@@ -98,7 +96,7 @@ class Config {
 
   public function getComGateService() {
     if (!$this->service) {
-      $this->service = new \AgmoPaymentsSimpleProtocol(self::GATEWAY_URL, $this->getComid() , !$this->isProduction() , $this->getSecret());
+      $this->service = new \ComGate\ComGateGateway\Api\AgmoPaymentsSimpleProtocol(self::GATEWAY_URL, $this->getComid() , !$this->isProduction() , $this->getSecret());
     }
 
     return $this->service;

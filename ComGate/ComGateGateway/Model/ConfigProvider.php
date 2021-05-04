@@ -25,8 +25,6 @@ class ConfigProvider implements ConfigProviderInterface {
     'result_url' => $this->config->getResultUrl() , 'form_url' => $this->config->getFormUrl() ,
     //'ipn_url' => $this->config->getIpnUrl(),
     'enabled' => $this->config->isEnabled() , 'title' => $this->config->getTitle() , 'production' => $this->config->isProduction() ,
-    //'comid' => $this->config->getComid(),
-    //'secret' => $this->config->getSecret(),
     //'preselected' => $this->config->getPreselected(),
     'channels' => $this->config->getChannels() , 'debug' => $this->config->isDebug() ]]];
 

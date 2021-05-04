@@ -4,9 +4,6 @@ namespace ComGate\ComGateGateway\Controller\Payment;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\Exception\PaymentException;
 
-//require_once __DIR__ . "/../../libs/comgate/CountryCodesConverter.php";
-require_once __DIR__ . "/../../libs/comgate/AgmoPaymentsSimpleProtocol.php";
-
 /**
  * This controller handles payment-transaction creation & redirection URL
  */
@@ -16,8 +13,8 @@ class Form extends CoreClass {
    * Constructor
    *
    */
-  public function __construct(\ComGate\ComGateGateway\Model\Config $config, \Magento\Framework\Message\ManagerInterface $messageManager, \Magento\Framework\App\Action\Context $context) {
-    parent::__construct($config, $messageManager, $context);
+  public function __construct(\ComGate\ComGateGateway\Model\Config $config, \Magento\Framework\Message\ManagerInterface $messageManager, \Magento\Framework\App\Action\Context $context, \Magento\Sales\Model\OrderRepository $orderRepository, \Magento\Checkout\Model\Session $session, \Magento\Framework\Locale\Resolver $locale) {
+    parent::__construct($config, $messageManager, $context, $orderRepository, $session, $locale);
   }
 
   /*public function fixCountryCode($countryCode) {
@@ -29,17 +26,17 @@ class Form extends CoreClass {
    */
   public function execute() {
 
-    // TODO[security]: Extract from session
-    $order_id = (int)trim((string)$this->getRequest()->getParam('order_id', NULL));
+    //$order_id = (int)trim((string)$this->getRequest()->getParam('order_id', NULL));
+    $order = $this->getSession()->getLastRealOrder();
+    if (!$order) {
+      http_response_code(400);
+      die('No order');
+    }
+
+    $order_id = $order->getId();
     if (!$order_id) {
       http_response_code(400);
       die('No order ID');
-    }
-
-    $order = $this->getOrder($order_id);
-    if (!$order->getId()) {
-      http_response_code(400);
-      die('No order');
     }
 
     if ($order->getState() != \Magento\Sales\Model\Order::STATE_PENDING_PAYMENT) {

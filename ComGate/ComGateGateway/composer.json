@@ -13,7 +13,7 @@
       "registration.php"
     ],
     "psr-4": {
-      "ComGate\\ComGateGateway\\": ""
+      "ComGate\\ComGateGateway\\": "",
     }
   }
 }

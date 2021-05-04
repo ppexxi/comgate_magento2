@@ -13,8 +13,8 @@ class Result extends CoreClass {
    * Constructor
    *
    */
-  public function __construct(\ComGate\ComGateGateway\Model\Config $config, \Magento\Framework\Message\ManagerInterface $messageManager, \Magento\Framework\App\Action\Context $context) {
-    parent::__construct($config, $messageManager, $context);
+  public function __construct(\ComGate\ComGateGateway\Model\Config $config, \Magento\Framework\Message\ManagerInterface $messageManager, \Magento\Framework\App\Action\Context $context, \Magento\Sales\Model\OrderRepository $orderRepository, \Magento\Checkout\Model\Session $session, \Magento\Framework\Locale\Resolver $locale) {
+    parent::__construct($config, $messageManager, $context, $orderRepository, $session, $locale);
   }
 
   /**
@@ -52,10 +52,16 @@ class Result extends CoreClass {
       return;
     }
 
-    $order_id = $status['refId'];
+    $order_id = (int)@$status['refId'];
     $order = $this->getOrder($order_id);
     if (!$order->getId()) {
       $this->messageManager->addErrorMessage(__('Invalid order in the process of payment'));
+      $this->_redirect('checkout/onepage/failure', ['_secure' => true]);
+      return;
+    }
+
+    if (($status['price'] != round($order->getGrandTotal() * 100)) || ($status['curr'] != $order->getOrderCurrency()->getCurrencyCode())) {
+      $this->messageManager->addErrorMessage(__('Payment sum or currency mismatch'));
       $this->_redirect('checkout/onepage/failure', ['_secure' => true]);
       return;
     }

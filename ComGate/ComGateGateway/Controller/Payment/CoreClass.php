@@ -11,46 +11,35 @@ abstract class CoreClass extends Action {
 
   protected $config;
   protected $messageManager;
+  protected $orderRepository;
+  protected $session;
+  protected $locale;
 
   /**
    * Constructor
    *
    */
-  public function __construct(\ComGate\ComGateGateway\Model\Config $config, \Magento\Framework\Message\ManagerInterface $messageManager, \Magento\Framework\App\Action\Context $context) {
+  public function __construct(\ComGate\ComGateGateway\Model\Config $config, \Magento\Framework\Message\ManagerInterface $messageManager, \Magento\Framework\App\Action\Context $context, \Magento\Sales\Model\OrderRepository $orderRepository, \Magento\Checkout\Model\Session $session, \Magento\Framework\Locale\Resolver $locale) {
     parent::__construct($context);
 
     $this->config = $config;
     $this->messageManager = $messageManager;
-  }
-
-  protected function getObjectManager() {
-    $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-    return $objectManager;
+    $this->orderRepository = $orderRepository;
+    $this->session = $session;
+    $this->locale = $locale;
   }
 
   protected function getOrder($order_id) {
-    $objectManager = $this->getObjectManager();
-    $order = $objectManager->create('Magento\Sales\Api\Data\OrderInterface');
-    return $order->load($order_id);
-  }
-
-  protected function getStore() {
-    $objectManager = $this->getObjectManager();
-    $storeManager = $objectManager->get('\Magento\Store\Model\StoreManagerInterface');
-    $store = $storeManager->getStore();
-    return $store;
+    $order = $this->orderRepository->get($order_id);
+    return $order;
   }
 
   protected function getSession() {
-    $objectManager = $this->getObjectManager();
-    $session = $objectManager->get('\Magento\Checkout\Model\Session');
-    return $session;
+    return $this->session;
   }
 
   protected function getLocale() {
-    $objectManager = $this->getObjectManager();
-    $locale = $objectManager->get('\Magento\Framework\Locale\Resolver');
-    return $locale;
+    return $this->locale;
   }
 
   protected function createResponse() {

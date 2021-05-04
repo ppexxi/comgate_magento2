@@ -14,9 +14,9 @@ class Ipn extends Result implements \Magento\Framework\App\Action\HttpPostAction
    * Constructor
    *
    */
-  public function __construct(\ComGate\ComGateGateway\Model\Config $config, \Magento\Framework\Message\ManagerInterface $messageManager, \Magento\Framework\App\Action\Context $context) {
+  public function __construct(\ComGate\ComGateGateway\Model\Config $config, \Magento\Framework\Message\ManagerInterface $messageManager, \Magento\Framework\App\Action\Context $context, \Magento\Sales\Model\OrderRepository $orderRepository, \Magento\Checkout\Model\Session $session, \Magento\Framework\Locale\Resolver $locale) {
 
-    parent::__construct($config, $messageManager, $context);
+    parent::__construct($config, $messageManager, $context, $orderRepository, $session, $locale);
   }
 
   public function createCsrfValidationException(\Magento\Framework\App\RequestInterface $request): ? \Magento\Framework\App\Request\InvalidRequestException {
@@ -73,7 +73,6 @@ class Ipn extends Result implements \Magento\Framework\App\Action\HttpPostAction
       \Magento\Sales\Model\Order::STATE_PAYMENT_REVIEW
     ))) {
 
-      //trigger_error('ComGate (notification): No change [' . $order_id . ']');
       $response->setHttpResponseCode(200);
       return $response;
     }
@@ -83,11 +82,15 @@ class Ipn extends Result implements \Magento\Framework\App\Action\HttpPostAction
       die('Payment error');
     }
 
+    if (($status['price'] != round($order->getGrandTotal() * 100)) || ($status['curr'] != $order->getOrderCurrency()->getCurrencyCode())) {
+      http_response_code(400);
+      die('Payment sum or currency mismatch');
+    }
+
     if (($status['status'] == 'CANCELLED') && ($order->getStatus() != \Magento\Sales\Model\Order::STATE_HOLDED)) {
       $order->setState(\Magento\Sales\Model\Order::STATE_HOLDED);
       $order->setStatus(\Magento\Sales\Model\Order::STATE_HOLDED);
 
-      //trigger_error('ComGate (notification): Payment failed [' . $order_id . ']');
       $order->addStatusHistoryComment('ComGate (notification): Payment failed');
       $order->save();
     }
@@ -95,7 +98,6 @@ class Ipn extends Result implements \Magento\Framework\App\Action\HttpPostAction
       $order->setState(\Magento\Sales\Model\Order::STATE_PROCESSING);
       $order->setStatus(\Magento\Sales\Model\Order::STATE_PROCESSING);
 
-      //trigger_error('ComGate (notification): Payment success [' . $order_id . ']');
       $order->addStatusHistoryComment('ComGate (notification): Payment success');
       $order->save();
     }
@@ -103,7 +105,6 @@ class Ipn extends Result implements \Magento\Framework\App\Action\HttpPostAction
       $order->setState(\Magento\Sales\Model\Order::STATE_PAYMENT_REVIEW);
       $order->setStatus(\Magento\Sales\Model\Order::STATE_PAYMENT_REVIEW);
 
-      //trigger_error('ComGate (notification): Payment pending [' . $order_id . ']');
       $order->addStatusHistoryComment('ComGate (notification): Payment pending');
       $order->save();
     }
@@ -119,4 +120,3 @@ class Ipn extends Result implements \Magento\Framework\App\Action\HttpPostAction
     return $response;
   }
 }
-

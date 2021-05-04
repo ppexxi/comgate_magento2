@@ -45,8 +45,6 @@ define(
                 }
 
                 console.log('Placing order ...');
-                //self.redirectToGateway({});
-                //return true;
 
                 if (this.validate() && additionalValidators.validate()) {
                     this.isPlaceOrderActionAllowed(false);
@@ -78,7 +76,7 @@ define(
                 console.log('Redirecting: ' + JSON.stringify(data));
 
                 $.get(tfConfig.form_url, {
-                    'order_id': data
+                    //'order_id': data
                 }).success(function(response) {
                     if (response) {
                         window.location.href = response;

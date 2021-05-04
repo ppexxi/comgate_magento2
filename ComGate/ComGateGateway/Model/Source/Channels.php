@@ -57,4 +57,3 @@ class Channels implements \Magento\Framework\Option\ArrayInterface {
     return $array;
   }
 }
-

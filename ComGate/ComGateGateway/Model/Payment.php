@@ -21,6 +21,7 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod {
   protected $_canFetchTransactionInfo = true;
   //protected $_isInitializeNeeded = false;
   //protected $_isOffline = false;
+
   protected $_supportedCurrencyCodes = array(
     'EUR'
   );
@@ -41,6 +42,7 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod {
     if (!in_array($currencyCode, $this->_supportedCurrencyCodes)) {
       return false;
     }
+
     return true;
   }
 
@@ -51,18 +53,14 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod {
   }
 
   public function capture(\Magento\Payment\Model\InfoInterface $payment, $amount) {
-    //$order = $payment->getOrder();
-    //$billing = $order->getBillingAddress();
     return $this;
   }
 
   public function cancel(\Magento\Payment\Model\InfoInterface $payment) {
-    //$order = $payment->getOrder();
     return $this;
   }
 
   public function void(\Magento\Payment\Model\InfoInterface $payment) {
-    //$order = $payment->getOrder();
     return $this;
   }
 
@@ -74,4 +72,3 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod {
     return true;
   }
 }
-
