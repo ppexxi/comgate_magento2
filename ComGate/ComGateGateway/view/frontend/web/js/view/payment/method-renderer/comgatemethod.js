@@ -75,11 +75,19 @@ define(
             redirectToGateway: function(data) {
                 console.log('Redirecting: ' + JSON.stringify(data));
 
+                var selection = document.querySelector('input[name="comgate[selection]"]:checked').value;
+
                 $.get(tfConfig.form_url, {
                     //'order_id': data
+                    'selection': selection
                 }).success(function(response) {
-                    if (response) {
-                        window.location.href = response;
+                    try {
+                        var data = JSON.parse(response);
+                        window.location.href = data;
+                    }
+                    catch(e) {
+                        console.log('Error placing order!');
+                        self.isPlaceOrderActionAllowed(true);
                     }
                 });
             }

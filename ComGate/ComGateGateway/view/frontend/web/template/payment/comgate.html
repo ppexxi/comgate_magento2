@@ -20,6 +20,27 @@
             <!-- ko template: getTemplate() --><!-- /ko -->
             <!--/ko-->
         </div>
+        <div class="checkout-selection-block">
+          <input type="radio"
+               checked
+               id="comgate-selection-card"
+               name="comgate[selection]"
+               class="radio"
+               value="card"/>
+          <label for="comgate-selection-card" class="label"><span data-bind="text: $t('Online card payment')"></span></label>
+          <input type="radio"
+               id="comgate-selection-wire"
+               name="comgate[selection]"
+               class="radio"
+               value="wire"/>
+          <label for="comgate-selection-wire" class="label"><span data-bind="text: $t('Online bank payment')"></span></label>
+          <input type="radio"
+               id="comgate-selection-delay"
+               name="comgate[selection]"
+               class="radio"
+               value="delay"/>
+          <label for="comgate-selection-delay" class="label"><span data-bind="text: $t('Delayed payment')"></span></label>
+        </div>
         <div class="actions-toolbar">
             <div class="primary">
                 <button class="action primary checkout"
