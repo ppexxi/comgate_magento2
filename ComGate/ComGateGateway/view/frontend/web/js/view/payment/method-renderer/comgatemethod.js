@@ -1,6 +1,7 @@
 /* ComGate Payment frontend method renderer */
 define(
     [
+        'ko',
         'jquery',
         'Magento_Checkout/js/view/payment/default',
         'Magento_Checkout/js/model/url-builder',
@@ -12,6 +13,7 @@ define(
         'Magento_Customer/js/model/customer'
     ],
     function(
+        ko,
         $,
         Component,
         urlBuilder,
@@ -27,12 +29,33 @@ define(
 
         console.log('ComGate initialized');
 
+        var gSelection = ko.observable(null);
+
         return Component.extend({
             defaults: {
                 template: 'ComGate_ComGateGateway/payment/comgate'
             },
 
             redirectAfterPlaceOrder: false,
+
+            selectPaymentMethodCard: function() {
+                gSelection('card');
+                return this.selectPaymentMethod();
+            },
+
+            selectPaymentMethodWire: function() {
+                gSelection('wire');
+                return this.selectPaymentMethod();
+            },
+
+            selectPaymentMethodDelay: function() {
+                gSelection('delay');
+                return this.selectPaymentMethod();
+            },
+
+            isChecked: ko.computed(function() {
+                return gSelection();
+            }),
 
             /**
              * After placing order, we need to create gateway redirection URL 
@@ -73,9 +96,16 @@ define(
              * Redirects the user to comgate payment page
              */
             redirectToGateway: function(data) {
-                console.log('Redirecting: ' + JSON.stringify(data));
 
-                var selection = document.querySelector('input[name="comgate[selection]"]:checked').value;
+                var selection = gSelection();
+
+                if (!selection) {
+                    console.log('No ComGate method selected!');
+                    self.isPlaceOrderActionAllowed(true);
+                    return;
+                }
+
+                console.log('Redirecting: ' + JSON.stringify(data));
 
                 $.get(tfConfig.form_url, {
                     //'order_id': data

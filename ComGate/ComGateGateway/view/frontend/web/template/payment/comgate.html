@@ -1,10 +1,11 @@
-<div class="payment-method" data-bind="css: {'_active': (getCode() == isChecked())}">
+<div class="payment-method" data-bind="css: {'_active': (isChecked() == 'card')}">
     <div class="payment-method-title field choice">
         <input type="radio"
                name="payment[method]"
                class="radio"
-               data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
-        <label data-bind="attr: {'for': getCode()}" class="label"><span data-bind="text: getTitle()"></span></label>
+               data-comgate="card"
+               data-bind="attr: {'id': getCode() + '-card'}, value: getCode(), xchecked: isChecked, click: selectPaymentMethodCard, visible: isRadioButtonVisible()"/>
+        <label data-bind="attr: {'for': getCode() + '-card'}" class="label"><span data-bind="text: $t('Online card payment')"></span></label>
     </div>
     <div class="payment-method-content">
         <!-- ko foreach: getRegion('messages') -->
@@ -20,26 +21,45 @@
             <!-- ko template: getTemplate() --><!-- /ko -->
             <!--/ko-->
         </div>
-        <div class="checkout-selection-block">
-          <input type="radio"
-               checked
-               id="comgate-selection-card"
-               name="comgate[selection]"
+        <div class="actions-toolbar">
+            <div class="primary">
+                <button class="action primary checkout"
+                        type="submit"
+                        data-bind="
+                        click: placeOrder,
+                        attr: {title: $t('Place Order')},
+                        css: {disabled: !isPlaceOrderActionAllowed()},
+                        enable: ((isChecked() == 'card'))
+                        "
+                        disabled>
+                    <span data-bind="text: $t('Place Order')"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="payment-method" data-bind="css: {'_active': (isChecked() == 'wire')}">
+    <div class="payment-method-title field choice">
+        <input type="radio"
+               name="payment[method]"
                class="radio"
-               value="card"/>
-          <label for="comgate-selection-card" class="label"><span data-bind="text: $t('Online card payment')"></span></label>
-          <input type="radio"
-               id="comgate-selection-wire"
-               name="comgate[selection]"
-               class="radio"
-               value="wire"/>
-          <label for="comgate-selection-wire" class="label"><span data-bind="text: $t('Online bank payment')"></span></label>
-          <input type="radio"
-               id="comgate-selection-delay"
-               name="comgate[selection]"
-               class="radio"
-               value="delay"/>
-          <label for="comgate-selection-delay" class="label"><span data-bind="text: $t('Delayed payment')"></span></label>
+               data-comgate="wire"
+               data-bind="attr: {'id': getCode() + '-wire'}, value: getCode(), xchecked: isChecked, click: selectPaymentMethodWire, visible: isRadioButtonVisible()"/>
+        <label data-bind="attr: {'for': getCode() + '-wire'}" class="label"><span data-bind="text: $t('Online bank payment')"></span></label>
+    </div>
+    <div class="payment-method-content">
+        <!-- ko foreach: getRegion('messages') -->
+        <!-- ko template: getTemplate() --><!-- /ko -->
+        <!--/ko-->
+        <div class="payment-method-billing-address">
+            <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
+            <!-- ko template: getTemplate() --><!-- /ko -->
+            <!--/ko-->
+        </div>
+        <div class="checkout-agreements-block">
+            <!-- ko foreach: $parent.getRegion('before-place-order') -->
+            <!-- ko template: getTemplate() --><!-- /ko -->
+            <!--/ko-->
         </div>
         <div class="actions-toolbar">
             <div class="primary">
@@ -49,7 +69,47 @@
                         click: placeOrder,
                         attr: {title: $t('Place Order')},
                         css: {disabled: !isPlaceOrderActionAllowed()},
-                        enable: (getCode() == isChecked())
+                        enable: (isChecked() == 'wire')
+                        "
+                        disabled>
+                    <span data-bind="text: $t('Place Order')"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="payment-method" data-bind="css: {'_active': (isChecked() == 'delay')}">
+    <div class="payment-method-title field choice">
+        <input type="radio"
+               name="payment[method]"
+               class="radio"
+               data-comgate="delay"
+               data-bind="attr: {'id': getCode() + '-delay'}, value: getCode(), xchecked: isChecked, click: selectPaymentMethodDelay, visible: isRadioButtonVisible()"/>
+        <label data-bind="attr: {'for': getCode() + '-delay'}" class="label"><span data-bind="text: $t('Delayed payment')"></span></label>
+    </div>
+    <div class="payment-method-content">
+        <!-- ko foreach: getRegion('messages') -->
+        <!-- ko template: getTemplate() --><!-- /ko -->
+        <!--/ko-->
+        <div class="payment-method-billing-address">
+            <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
+            <!-- ko template: getTemplate() --><!-- /ko -->
+            <!--/ko-->
+        </div>
+        <div class="checkout-agreements-block">
+            <!-- ko foreach: $parent.getRegion('before-place-order') -->
+            <!-- ko template: getTemplate() --><!-- /ko -->
+            <!--/ko-->
+        </div>
+        <div class="actions-toolbar">
+            <div class="primary">
+                <button class="action primary checkout"
+                        type="submit"
+                        data-bind="
+                        click: placeOrder,
+                        attr: {title: $t('Place Order')},
+                        css: {disabled: !isPlaceOrderActionAllowed()},
+                        enable: (isChecked() == 'delay')
                         "
                         disabled>
                     <span data-bind="text: $t('Place Order')"></span>
