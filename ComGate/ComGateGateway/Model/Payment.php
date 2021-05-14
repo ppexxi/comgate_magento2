@@ -12,15 +12,8 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod {
   protected $_isGateway = true;
   protected $_canAuthorize = true;
   protected $_canCapture = true;
-  //protected $_canCapturePartial = true;
-  //protected $_canRefund = true;
-  //protected $_canRefundInvoicePartial = true;
-  //protected $_canVoid = false;
-  //protected $_canUseInternal = true;
   protected $_canUseCheckout = true;
   protected $_canFetchTransactionInfo = true;
-  //protected $_isInitializeNeeded = false;
-  //protected $_isOffline = false;
 
   protected $_supportedCurrencyCodes = array(
     'EUR'
@@ -32,9 +25,6 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod {
   }
 
   public function initialize($paymentAction, $stateObject) {
-    //$payment = $this->getInfoInstance();
-    //$stateObject->setState(\Magento\Sales\Model\Order::STATE_PENDING_PAYMENT);
-    //$stateObject->setStatus(\Magento\Sales\Model\Order::STATE_PENDING_PAYMENT);
     $stateObject->setIsNotified(false);
   }
 
@@ -47,8 +37,6 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod {
   }
 
   public function authorize(\Magento\Payment\Model\InfoInterface $payment, $amount) {
-    //$order = $payment->getOrder();
-    //$billing = $order->getBillingAddress();
     return $this;
   }
 

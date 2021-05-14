@@ -114,12 +114,6 @@ class Result extends CoreClass {
         $this->_redirect('checkout/onepage/success', ['_secure' => true]);
         return;
       }
-
-      /*$order->addStatusHistoryComment('ComGate (redirect): Unknown state [error]');
-      $order->save();
-      
-      $this->messageManager->addErrorMessage(__('An unknown result occurred in the process of payment'));
-      $this->_redirect('checkout/onepage/failure', ['_secure' => TRUE]);*/
     }
   }
 }

@@ -17,10 +17,6 @@ class Form extends CoreClass {
     parent::__construct($config, $messageManager, $context, $orderRepository, $session, $locale);
   }
 
-  /*public function fixCountryCode($countryCode) {
-    return convert_country_code_from_isoa2_to_isoa3($countryCode);
-  }*/
-
   /**
    * @return \Magento\Framework\Controller\ResultInterface
    */
@@ -69,7 +65,6 @@ class Form extends CoreClass {
     $locale_string = explode('_', $locale->getLocale() , 2);
 
     $payment_methods = $this->config->getChannels();
-    //var_dump($payment_methods); die();
 
     $allowed_payment_methods = array();
     foreach($payment_methods as $payment_method) {
@@ -99,11 +94,9 @@ class Form extends CoreClass {
       }
     }
     $payment_methods_string = implode('+', $allowed_payment_methods);
-    //var_dump($payment_methods_string); die();
-    //$currency = 'CZK';
 
     $service = $this->config->getComGateService();
-    $result = $service->createTransaction(/*$this->fixCountryCode(*/$address ? $address->getCountryId() : 'SK' /*)*/, round($order->getGrandTotal() * 100) , $currency ? $currency : 'EUR', $productName, $order->getId() , $clientId, '', '', $payment_methods_string, '', $address ? $address->getEmail() : 'nomail@example.com', $address ? $address->getTelephone() : '', $productName, strtoupper($locale_string[0]) , false, false, false, false, false);
+    $result = $service->createTransaction($address ? $address->getCountryId() : 'SK', round($order->getGrandTotal() * 100) , $currency ? $currency : 'EUR', $productName, $order->getId() , $clientId, '', '', $payment_methods_string, '', $address ? $address->getEmail() : 'nomail@example.com', $address ? $address->getTelephone() : '', $productName, strtoupper($locale_string[0]) , false, false, false, false, false);
 
     $response = $this->createResponse();
     $response->setContents(json_encode($result->redirectUrl));

@@ -108,13 +108,6 @@ class Ipn extends Result implements \Magento\Framework\App\Action\HttpPostAction
       $order->addStatusHistoryComment('ComGate (notification): Payment pending');
       $order->save();
     }
-    else {
-      /*$order->addStatusHistoryComment('ComGate (notification): Unknown state [error]');
-      $order->save();
-       
-      http_response_code(400);
-      die('Invalid transaction state');*/
-    }
 
     $response->setHttpResponseCode(200);
     return $response;
