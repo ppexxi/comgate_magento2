@@ -1,9 +1,6 @@
 <?php
 namespace ComGate\ComGateGateway\Controller\Payment;
 
-use Magento\Framework\App\Action\Action;
-use Magento\Framework\Exception\PaymentException;
-
 /**
  * This controller handles payment-transaction creation & redirection URL
  */
@@ -44,62 +41,14 @@ class Form extends CoreClass {
     if (!$selection) {
       $selection = 'card';
     }
+    
+    $order->addStatusHistoryComment('ComGate: Passing to gateway');
+    $order->save();
 
-    if ($order->getState() != \Magento\Sales\Model\Order::STATE_PENDING_PAYMENT) {
-      $order->setState(\Magento\Sales\Model\Order::STATE_PENDING_PAYMENT);
-      $order->setStatus(\Magento\Sales\Model\Order::STATE_PENDING_PAYMENT);
-      $order->addStatusHistoryComment('ComGate: Redirected to gateway');
-      $order->save();
-    }
-
-    $currency = $order->getOrderCurrency()->getCurrencyCode();
-
-    $address = $order->getBillingAddress();
-
-    if ($address && ($address->getCustomerId() != null)) $clientId = $address->getCustomerId();
-    else $clientId = 0;
-
-    $productName = 'Ord. ' . $order->getId();
-
-    $locale = $this->getLocale();
-    $locale_string = explode('_', $locale->getLocale() , 2);
-
-    $payment_methods = $this->config->getChannels();
-
-    $allowed_payment_methods = array();
-    foreach($payment_methods as $payment_method) {
-      $allow = false;
-      switch ($selection) {
-        case 'card':
-        if (strpos($payment_method,'CARD_') === 0) {
-          $allow = true;
-        }
-        break;
-
-        case 'wire': 
-        if (strpos($payment_method,'BANK_') === 0) {
-          $allow = true;
-        }
-        break;
-
-        case 'delay':
-        if (strpos($payment_method,'LATER_') === 0) {
-          $allow = true;
-        }
-        break;
-      }
-
-      if ($allow) {
-        $allowed_payment_methods[] = $payment_method;
-      }
-    }
-    $payment_methods_string = implode('+', $allowed_payment_methods);
-
-    $service = $this->config->getComGateService();
-    $result = $service->createTransaction($address ? $address->getCountryId() : 'SK', round($order->getGrandTotal() * 100) , $currency ? $currency : 'EUR', $productName, $order->getId() , $clientId, '', '', $payment_methods_string, '', $address ? $address->getEmail() : 'nomail@example.com', $address ? $address->getTelephone() : '', $productName, strtoupper($locale_string[0]) , false, false, false, false, false);
+    $url = \ComGate\ComGateGateway\Api\AgmoPaymentsHelper::createPaymentUrl($this->config, $this->getLocale(), $order, $selection);
 
     $response = $this->createResponse();
-    $response->setContents(json_encode($result->redirectUrl));
+    $response->setContents(json_encode($url));
 
     return $response;
   }

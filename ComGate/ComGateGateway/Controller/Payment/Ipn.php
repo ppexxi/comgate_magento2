@@ -1,9 +1,6 @@
 <?php
 namespace ComGate\ComGateGateway\Controller\Payment;
 
-use Magento\Framework\App\Action\Action;
-use Magento\Framework\Exception\PaymentException;
-
 /**
  * This controller handles the server to server notification (IPN)
  *
@@ -87,25 +84,38 @@ class Ipn extends Result implements \Magento\Framework\App\Action\HttpPostAction
       die('Payment sum or currency mismatch');
     }
 
+    $invoice = $order->getInvoiceCollection()->getFirstItem();
+    $payment = $order->getPayment();
+
     if (($status['status'] == 'CANCELLED') && ($order->getStatus() != \Magento\Sales\Model\Order::STATE_HOLDED)) {
-      $order->setState(\Magento\Sales\Model\Order::STATE_HOLDED);
-      $order->setStatus(\Magento\Sales\Model\Order::STATE_HOLDED);
+
+      $payment->getMethodInstance()->cancel($payment);
 
       $order->addStatusHistoryComment('ComGate (notification): Payment failed');
       $order->save();
     }
     else if (($status['status'] == 'PAID') && ($order->getStatus() != \Magento\Sales\Model\Order::STATE_PROCESSING)) {
-      $order->setState(\Magento\Sales\Model\Order::STATE_PROCESSING);
-      $order->setStatus(\Magento\Sales\Model\Order::STATE_PROCESSING);
+      
+       \ComGate\ComGateGateway\Api\AgmoPaymentsHelper::updatePaymentTransaction($payment, array(
+        'id' => $id,
+        'state' => $status['status']
+      ));
+
+      $payment->capture();
 
       $order->addStatusHistoryComment('ComGate (notification): Payment success');
       $order->save();
     }
     else if (($status['status'] == 'AUTHORIZED') && ($order->getStatus() != \Magento\Sales\Model\Order::STATE_PAYMENT_REVIEW)) {
-      $order->setState(\Magento\Sales\Model\Order::STATE_PAYMENT_REVIEW);
-      $order->setStatus(\Magento\Sales\Model\Order::STATE_PAYMENT_REVIEW);
 
-      $order->addStatusHistoryComment('ComGate (notification): Payment pending');
+       \ComGate\ComGateGateway\Api\AgmoPaymentsHelper::updatePaymentTransaction($payment, array(
+        'id' => $id,
+        'state' => $status['status']
+      ));
+
+      $payment->getMethodInstance()->authorize($payment, $order->getGrandTotal());
+
+      $order->addStatusHistoryComment('ComGate (notification): Payment authorized');
       $order->save();
     }
 

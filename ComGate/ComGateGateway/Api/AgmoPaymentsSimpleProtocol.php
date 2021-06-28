@@ -246,6 +246,37 @@ class AgmoPaymentsSimpleProtocol {
     return $result;
   }
 
+  public function refund($transId, $amount, $currency, $refId = null) {
+
+    // prepare request body
+    $requestParams = array(
+      'merchant' => $this->_merchant,
+      'test' => ($this->_test ? 'true' : 'false') ,
+      'secret' => $this->_secret,
+      'transId' => $transId,
+      'amount' => $amount,
+      'curr' => $currency,
+      'refId' => $refId
+    );
+
+    $requestBody = $this->_encodeParams($requestParams);
+    $url = $this->_paymentsUrl;
+
+    // do HTTP request
+    $responseBody = $this->_doHttpPost($url . '/refund', $requestBody);
+    //var_dump($responseBody); die();
+
+    // process HTTP response
+    $out = null;
+    parse_str($responseBody, $out);
+
+    if (!$out) {
+      return false;
+    }
+
+    return $out;
+  }
+
   public function getPaymentMethods() {
 
     // prepare request body

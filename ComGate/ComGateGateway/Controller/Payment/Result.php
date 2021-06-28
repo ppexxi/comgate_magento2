@@ -66,10 +66,14 @@ class Result extends CoreClass {
       return;
     }
 
+    $invoice = $order->getInvoiceCollection()->getFirstItem();
+    $payment = $order->getPayment();
+
     $result = $status['status'];
     if (($result == 'CANCELLED') && ($order->getStatus() != \Magento\Sales\Model\Order::STATE_HOLDED)) {
-      $order->setState(\Magento\Sales\Model\Order::STATE_HOLDED);
-      $order->setStatus(\Magento\Sales\Model\Order::STATE_HOLDED);
+
+      $payment->getMethodInstance()->cancel($payment);
+
       $order->addStatusHistoryComment('ComGate (redirect): Payment failed');
       $order->save();
 
@@ -78,8 +82,14 @@ class Result extends CoreClass {
       return;
     }
     else if (($result == 'PAID') && ($order->getStatus() != \Magento\Sales\Model\Order::STATE_PROCESSING)) {
-      $order->setState(\Magento\Sales\Model\Order::STATE_PROCESSING);
-      $order->setStatus(\Magento\Sales\Model\Order::STATE_PROCESSING);
+
+      \ComGate\ComGateGateway\Api\AgmoPaymentsHelper::updatePaymentTransaction($payment, array(
+        'id' => $id,
+        'state' => $result
+      ));
+
+      $payment->capture();
+
       $order->addStatusHistoryComment('ComGate (redirect): Payment success');
       $order->save();
 
@@ -87,8 +97,14 @@ class Result extends CoreClass {
       return;
     }
     else if (($result == 'PENDING') && ($order->getStatus() != \Magento\Sales\Model\Order::STATE_PAYMENT_REVIEW)) {
-      $order->setState(\Magento\Sales\Model\Order::STATE_PAYMENT_REVIEW);
-      $order->setStatus(\Magento\Sales\Model\Order::STATE_PAYMENT_REVIEW);
+
+      \ComGate\ComGateGateway\Api\AgmoPaymentsHelper::updatePaymentTransaction($payment, array(
+        'id' => $id,
+        'state' => $result
+      ));
+
+      $payment->getMethodInstance()->authorize($payment, $order->getGrandTotal());
+
       $order->addStatusHistoryComment('ComGate (redirect): Payment pending');
       $order->save();
 
@@ -96,8 +112,14 @@ class Result extends CoreClass {
       return;
     }
     else if (($result == 'AUTHORIZED') && ($order->getStatus() != \Magento\Sales\Model\Order::STATE_PAYMENT_REVIEW)) {
-      $order->setState(\Magento\Sales\Model\Order::STATE_PAYMENT_REVIEW);
-      $order->setStatus(\Magento\Sales\Model\Order::STATE_PAYMENT_REVIEW);
+
+      \ComGate\ComGateGateway\Api\AgmoPaymentsHelper::updatePaymentTransaction($payment, array(
+        'id' => $id,
+        'state' => $result
+      ));
+
+      $payment->getMethodInstance()->authorize($payment, $order->getGrandTotal());
+
       $order->addStatusHistoryComment('ComGate (redirect): Payment authorized');
       $order->save();
 
@@ -107,14 +129,23 @@ class Result extends CoreClass {
     else {
       if ($result == 'CANCELLED') {
         $this->messageManager->addErrorMessage(__('An failure occurred in the process of payment'));
+
+        $payment->getMethodInstance()->cancel($payment);
+
         $this->_redirect('checkout/onepage/failure', ['_secure' => true]);
         return;
       }
       else {
+        \ComGate\ComGateGateway\Api\AgmoPaymentsHelper::updatePaymentTransaction($payment, array(
+            'id' => $id,
+            'state' => $result
+        ));
+
+        $payment->capture();
+
         $this->_redirect('checkout/onepage/success', ['_secure' => true]);
         return;
       }
     }
   }
 }
-
